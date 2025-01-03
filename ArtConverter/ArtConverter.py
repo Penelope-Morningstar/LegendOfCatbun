@@ -65,7 +65,7 @@ for ty in range(32):
 
 with open("ArtConverter/Tilemap.asm", "w") as f:
     n = 0
-    line = ".byte "
+    line = ".i8 "
     for c in tilebytes:
         n+=1
         if(n!=1):
@@ -73,7 +73,7 @@ with open("ArtConverter/Tilemap.asm", "w") as f:
         line += hex(c)
         if(n==8):
             f.write(line)
-            line = "\n.byte "
+            line = "\n.i8 "
             n=0
             
 tilemap = Image.open("ArtConverter/background.png")
@@ -105,7 +105,7 @@ for ty in range(32):
 
 with open("ArtConverter/BGTiles.asm", "w") as f:
     n = 0
-    line = ".byte "
+    line = ".i8 "
     for c in tilebytes:
         n+=1
         if(n!=1):
@@ -113,7 +113,7 @@ with open("ArtConverter/BGTiles.asm", "w") as f:
         line += hex(c)
         if(n==8):
             f.write(line)
-            line = "\n.byte "
+            line = "\n.i8 "
             n=0
             
 tilemap = Image.open("ArtConverter/map1.png")
@@ -137,13 +137,15 @@ for ty in range(32):
         half = nr+ng+nb
         if half in colors:
             index = colors.index(half)
-            tilebytes.append(index)
+            tilebytes.append(index - 1)
+            tilebytes.append(0)
         else:
+            tilebytes.append(0)
             tilebytes.append(0)
 
 with open("ArtConverter/BGMap.asm", "w") as f:
     n = 0
-    line = ".byte "
+    line = ".i8 "
     for c in tilebytes:
         n+=1
         if(n!=1):
@@ -151,7 +153,7 @@ with open("ArtConverter/BGMap.asm", "w") as f:
         line += hex(c)
         if(n==8):
             f.write(line)
-            line = "\n.byte "
+            line = "\n.i8 "
             n=0
     
             
