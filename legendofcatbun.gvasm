@@ -8569,7 +8569,9 @@ InfLoop:
      b InfLoop
     
     MoveDown:
-        add r9, r9, #1
+        mov r13, #144
+        cmp r9,r13
+        addlt r9, r9, #1
         add r0, r1, r9
         mov r11,#0x07000000
         strh r0, [r11]
@@ -8580,7 +8582,9 @@ InfLoop:
         b InfLoop
 
     MoveUp:
-        sub r9, r9, #1
+        mov r13, #0
+        cmp r9,r13
+        subgt r9, r9, #1
         add r0, r1, r9
         mov r11,#0x07000000
         strh r0, [r11]
@@ -8590,7 +8594,9 @@ InfLoop:
         b InfLoop
     
     MoveLeft:
-        sub r10, r10, #1
+        mov r13, #0
+        cmp r10,r13
+        subgt r10, r10, #1
         add r0, r2, r10
         ldr r11,=0x07000002
         strh r0, [r11]
@@ -8601,7 +8607,9 @@ InfLoop:
         b InfLoop
 
     MoveRight:
-        add r10, r10, #1
+        mov r13, #224
+        cmp r10,r13
+        addlt r10, r10, #1
         add r0, r2, r10
         ldr r11,=0x07000002
         strh r0, [r11]
