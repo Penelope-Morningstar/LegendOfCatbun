@@ -127,13 +127,40 @@ InfLoop:
             asr r1, r9, #4
             add r1, r1, #1
             asr r2, r10, #4
+            //check the tile x position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r10, r11
+            cmp r12, #13
+            addge r2,r2,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+
             mov r5, #16
             mul r3, r1, r5
             add r3, r3, r2
             ldr r0, =Collision
             ldrb r0, [r0, r3]
             cmp r0, #0x1
-            subeq r9, r9, #1        
+            subeq r9, r9, #1 
+            // if r14 != 1 we need to run the Collision check again after adding one to the tile BallX
+            // we can skip if our first Collision check already collided.
+            beq SkipCollisionCheckMD
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckMD
+
+            add r2,r2,#1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            subeq r9, r9, #1
+
+
 
         SkipCollisionCheckMD:
         mov r1, #0x2000
@@ -159,15 +186,40 @@ InfLoop:
             //at a boundary so we must check the Collision
             //tiley will be r1, tilex will be r2
             asr r1, r9, #4
-            sub r1, r1, #1
+            //sub r1, r1, #1
             asr r2, r10, #4
+            //check the tile x position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r10, r11
+            cmp r12, #13
+            addge r2,r2,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+
             mov r5, #16
             mul r3, r1, r5
             add r3, r3, r2
             ldr r0, =Collision
             ldrb r0, [r0, r3]
             cmp r0, #0x1
-            addeq r9, r9, #1        
+            addeq r9, r9, #1
+            // if r14 != 1 we need to run the Collision check again after adding one to the tile BallX
+            // we can skip if our first Collision check already collided.
+            beq SkipCollisionCheckMU
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckMU
+
+            add r2,r2,#1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            addeq r9, r9, #1     
 
         SkipCollisionCheckMU:
         mov r1, #0x2000
@@ -193,14 +245,41 @@ InfLoop:
             //tiley will be r1, tilex will be r2
             asr r1, r9, #4
             asr r2, r10, #4
-            sub r2, r2, #1
+            //check the tile y position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r9, r11
+            cmp r12, #13
+            addge r1,r1,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+            
+
+            //sub r2, r2, #1
             mov r5, #16
             mul r3, r1, r5
             add r3, r3, r2
             ldr r0, =Collision
             ldrb r0, [r0, r3]
             cmp r0, #0x1
-            addeq r10, r10, #1        
+            addeq r10, r10, #1 
+
+            // if r14 != 1 we need to run the Collision check again after adding one to the tile BallX
+            // we can skip if our first Collision check already collided.
+            beq SkipCollisionCheckML
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckML 
+
+            add r1, r1, #1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            addeq r10, r10, #1      
 
         SkipCollisionCheckML:
         mov r1, #0x4000
@@ -227,6 +306,16 @@ InfLoop:
             //tiley will be r1, tilex will be r2
             asr r1, r9, #4
             asr r2, r10, #4
+            //check the tile y position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r9, r11
+            cmp r12, #13
+            addge r1,r1,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+
             add r2, r2, #1
             mov r5, #16
             mul r3, r1, r5
@@ -234,7 +323,21 @@ InfLoop:
             ldr r0, =Collision
             ldrb r0, [r0, r3]
             cmp r0, #0x1
-            subeq r10, r10, #1        
+            subeq r10, r10, #1   
+
+            beq SkipCollisionCheckMR
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckMR
+
+            add r1, r1, #1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            subeq r10, r10, #1           
 
         SkipCollisionCheckMR:
 
