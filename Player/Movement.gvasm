@@ -1,0 +1,297 @@
+PlayerMovement:
+    ldr r0, =0x4000130
+    ldrh r0, [r0]
+
+    mov r1, #0x80 //bit mask for down input
+    tst r0, r1
+    beq MoveDown
+    mov r1, #0x40 //bit mask for Up input
+    tst r0, r1
+    beq MoveUp
+    mov r1, #0x20 //bit mask for Left input
+    tst r0, r1
+    beq MoveLeft
+    mov r1, #0x10 //bit mask for Right input
+    tst r0, r1
+    beq MoveRight
+     b InfLoop
+    
+    MoveDown:
+        mov r1, #144 //This checks the boundary and won't proceed if at the boundary
+        cmp r9,r1
+        addlt r9, r9, #1
+        sub r1, r9, #2
+        mov r2, #15
+        and r2, r1, r2
+        cmp r2, #0
+        bne SkipCollisionCheckMD
+            //at a boundary so we must check the Collision
+            //tiley will be r1, tilex will be r2
+            asr r1, r9, #4
+            add r1, r1, #1
+            asr r2, r10, #4 //this has to be done to all of them
+            //check the tile x position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r10, r11
+            cmp r12, #13
+            addge r2,r2,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            subeq r9, r9, #1 
+            // if r14 != 1 we need to run the Collision check again after adding one to the tile BallX
+            // we can skip if our first Collision check already collided.
+            beq SkipCollisionCheckMD
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckMD
+
+            add r2,r2,#1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            subeq r9, r9, #1
+
+
+
+        SkipCollisionCheckMD:
+        mov r1, #0x2000
+        add r0, r1, r9
+        mov r2,#0x07000000
+        strh r0, [r2]
+
+        mov r3, #0
+        ldr r2,=0x07000004
+        strh r3, [r2]
+        b InfLoop
+
+    MoveUp:
+        mov r1, #0
+        cmp r9,r1
+        subgt r9, r9, #1
+        
+        add r1, r9, #2
+        mov r2, #15
+        and r2, r1, r2
+        cmp r2, #0
+        bne SkipCollisionCheckMU
+            //at a boundary so we must check the Collision
+            //tiley will be r1, tilex will be r2
+            asr r1, r9, #4
+            //sub r1, r1, #1
+            asr r2, r10, #4
+            //check the tile x position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r10, r11
+            cmp r12, #13
+            addge r2,r2,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            addeq r9, r9, #1
+            // if r14 != 1 we need to run the Collision check again after adding one to the tile BallX
+            // we can skip if our first Collision check already collided.
+            beq SkipCollisionCheckMU
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckMU
+
+            add r2,r2,#1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            addeq r9, r9, #1     
+
+        SkipCollisionCheckMU:
+        mov r1, #0x2000
+        add r0, r1, r9
+        mov r2,#0x07000000
+        strh r0, [r2]
+        mov r3, #12
+        ldr r2,=0x07000004
+        strh r3, [r2]
+        b InfLoop
+    
+    MoveLeft:
+        mov r1, #0
+        cmp r10,r1
+        subgt r10, r10, #1
+        
+        add r1, r10, #4
+        mov r2, #15
+        and r2, r1, r2
+        cmp r2, #0
+        bne SkipCollisionCheckML
+            //at a boundary so we must check the Collision
+            //tiley will be r1, tilex will be r2
+            asr r1, r9, #4
+            asr r2, r10, #4
+            //check the tile y position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r9, r11
+            cmp r12, #13
+            addge r1,r1,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+            
+
+            //sub r2, r2, #1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            addeq r10, r10, #1 
+
+            // if r14 != 1 we need to run the Collision check again after adding one to the tile BallX
+            // we can skip if our first Collision check already collided.
+            beq SkipCollisionCheckML
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckML 
+
+            add r1, r1, #1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            addeq r10, r10, #1      
+
+        SkipCollisionCheckML:
+        mov r1, #0x4000
+        add r0, r1, r10
+        ldr r2,=0x07000002
+        strh r0, [r2]
+
+        mov r3, #4
+        ldr r2,=0x07000004
+        strh r3, [r2]
+        b InfLoop
+
+    MoveRight:
+        mov r1, #224
+        cmp r10,r1
+        addlt r10, r10, #1
+        
+        sub r1, r10, #4
+        mov r2, #15
+        and r2, r1, r2
+        cmp r2, #0
+        bne SkipCollisionCheckMR
+            //at a boundary so we must check the Collision
+            //tiley will be r1, tilex will be r2
+            asr r1, r9, #4
+            asr r2, r10, #4
+            //check the tile y position to see if the last 4 bits ge 14
+            mov r11, #15
+            and r12, r9, r11
+            cmp r12, #13
+            addge r1,r1,#1
+            movge r7, #1
+            //this shifts the tile over by 1 because we're mostly in that tile.
+            cmp r12, #2
+            movle r7, #1
+
+            add r2, r2, #1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            subeq r10, r10, #1   
+
+            beq SkipCollisionCheckMR
+            cmp r7, #1
+            mov r7, #0
+            beq SkipCollisionCheckMR
+
+            add r1, r1, #1
+            mov r5, #16
+            mul r3, r1, r5
+            add r3, r3, r2
+            ldr r0, =Collision
+            ldrb r0, [r0, r3]
+            cmp r0, #0x1
+            subeq r10, r10, #1           
+
+        SkipCollisionCheckMR:
+
+        mov r1, #0x4000
+        add r0, r1, r10
+        ldr r2,=0x07000002
+        strh r0, [r2]
+
+        mov r3, #8
+        ldr r2,=0x07000004
+        strh r3, [r2]
+        b InfLoop
+
+GetColliderAtPosition:
+    mov r5, #16
+    mul r3, r1, r5
+    add r3, r3, r2
+    ldr r0, =Collision
+    ldrb r0, [r0, r3]
+
+
+
+mov r0, r9        // Load X Coordinate register into r0
+mov r1, r1        // Load X Tile register into r1
+
+
+// \/\/\/ Let's apply this standard to keep things well organized and readable
+
+//======================================================
+    ApplyCollisionOffsets:
+/*======================================================
+
+    Description:
+    This function accounts for the fact that the player is
+    Smaller than the size of the grid.
+
+    Inputs:
+    R1, Player Coordinate
+    R2, Tile Coordinate
+
+    Outputs:
+    R0, Modified Tile Coordinate
+
+======================================================*/
+    mov r11, #15
+    and r12, r10, r11
+    cmp r12, #13
+    addge r2,r2,#1
+    movge r7, #1
+    cmp r12, #2
+    movle r7, #1
+    mov r1,r1 
+    bx
+//======================================================

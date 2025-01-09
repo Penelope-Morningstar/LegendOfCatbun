@@ -1,0 +1,26 @@
+//======================================================
+    ApplyCollisionOffsets:
+/*======================================================
+
+    Description:
+    This function accounts for the fact that the player is
+    Smaller than the size of the grid.
+
+    Inputs:
+    R1, Player Coordinate
+    R2, Tile Coordinate
+
+    Outputs:
+    R0, Modified Tile Coordinate
+
+======================================================*/
+    mov r11, #15
+    and r12, r10, r11
+    cmp r12, #13
+    addge r2,r2,#1
+    movge r7, #1
+    cmp r12, #2
+    movle r7, #1
+    mov r1,r1 
+    bx
+//======================================================
