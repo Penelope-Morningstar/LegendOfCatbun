@@ -272,8 +272,6 @@ mov r1, r1        // Load X Tile register into r1
 //======================================================
     ApplyCollisionOffsets:
 /*======================================================
-
-    Description:
     This function accounts for the fact that the player is
     Smaller than the size of the grid.
 
@@ -283,7 +281,6 @@ mov r1, r1        // Load X Tile register into r1
 
     Outputs:
     R0, Modified Tile Coordinate
-
 ======================================================*/
     mov r11, #15
     and r12, r10, r11
