@@ -1,6 +1,6 @@
 PlayerMovement:
-    ldr r0, =0x4000130
-    ldrh r0, [r0]
+    ldr r0, =0x4000130  //This is the input address
+    ldrh r0, [r0]       //Load this frame's input
 
     mov r1, #0x80 //bit mask for down input
     tst r0, r1
@@ -254,21 +254,96 @@ PlayerMovement:
         strh r3, [r2]
         b InfLoop
 
-GetColliderAtPosition:
-    mov r5, #16
-    mul r3, r1, r5
-    add r3, r3, r2
-    ldr r0, =Collision
-    ldrb r0, [r0, r3]
-
 
 
 mov r0, r9        // Load X Coordinate register into r0
 mov r1, r1        // Load X Tile register into r1
 
 
-// \/\/\/ Let's apply this standard to keep things well organized and readable
+//======================================================
+    .begin MoveDown
+/*======================================================
+    This function performs the movedown action
 
+    Inputs:
+    R1, PlayerX
+    R2, PlayerY
+
+======================================================*/
+    stmfd sp!,{r1-r5, lr}
+    //Preamble
+
+        mov r3, #144                //This checks the outer map boundary 
+        cmp r2,r3                   //and will counteract the movement if at it.
+        addlt r2, r2, #1
+
+        sub r3, r2, #2              //This checks if we are at the tile boundary 
+        mov r4, #15
+        and r4, r3, r4
+        cmp r4, #0                  //this checks to see if the offset coordinate value ends in zeros
+
+        bne SkipCollisionCheck
+            asr r4, r2, #4
+            add r4, r4, #1
+            asr r3, r1, #4 
+
+            bl ApplyCollisionOffsets
+
+            bl GetColliderAtPosition
+            cmp r0, #0x1
+            subeq r2, r2, #1 
+
+            beq SkipCollisionCheck
+            cmp r5, #1
+            mov r5, #0
+            beq SkipCollisionCheck
+            
+            bl GetColliderAtPosition
+            cmp r0, #0x1
+            subeq r2, r2, #1
+        SkipCollisionCheck:
+        
+        mov r3, #0x2000
+        add r3, r3, r2
+        mov r4,#0x07000000
+        strh r0, [r4]
+        mov r3, #0
+        ldr r4,=0x07000004
+        strh r3, [r4]
+
+    //Postamble
+    ldmfd sp!,{r1-r5, lr}
+    bx lr
+    .end
+//======================================================
+
+
+//======================================================
+    GetColliderAtPosition:
+/*======================================================
+    This returns the metadata from the specified tile 
+    coordinates
+
+    Inputs:
+    R1, TileX
+    R2, TileY
+
+    Outputs:
+    R0, ReturnedData
+======================================================*/
+    stmfd sp!,{r1-r3, lr}
+    //Preamble
+
+    mov r3, #16
+    mul r3, r2, r3
+    add r3, r3, r1
+    ldr r0, =Collision
+    ldrb r0, [r0, r3]
+    bx
+
+    //Postamble
+    ldmfd sp!,{r1-r3, lr}
+    bx lr
 //======================================================
     ApplyCollisionOffsets:
 /*======================================================
@@ -281,14 +356,21 @@ mov r1, r1        // Load X Tile register into r1
 
     Outputs:
     R0, Modified Tile Coordinate
+    R5, Within Offset Flag
 ======================================================*/
-    mov r11, #15
-    and r12, r10, r11
-    cmp r12, #13
+    stmfd sp!,{r1-r4, lr}
+    //Preamble
+
+    mov r3, #15
+    and r3, r1, r3
+    cmp r3, #13
     addge r2,r2,#1
-    movge r7, #1
-    cmp r12, #2
-    movle r7, #1
+    movge r5, #1
+    cmp r3, #2
+    movle r5, #1
     mov r1,r1 
-    bx
+
+    //Postamble
+    ldmfd sp!,{r1-r4, lr}
+    bx lr
 //======================================================
